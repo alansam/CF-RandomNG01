@@ -61,6 +61,10 @@ int main(int argc, const char * argv[]) {
   std::cout << "random()\n"s;
   rando(rfun::f_random);
 
+  std::cout << std::string(60, '-') << '\n';
+  std::cout << "rand_r()\n"s;
+  rando(rfun::f_rand_r);
+
 #ifndef __APPLE__
   std::cout << std::string(60, '-') << '\n';
   std::cout << "getrandom()\n"s;
@@ -70,10 +74,6 @@ int main(int argc, const char * argv[]) {
   std::cout << std::string(60, '-') << '\n';
   std::cout << "getentropy()\n"s;
   rando(rfun::f_getentropy);
-
-  std::cout << std::string(60, '-') << '\n';
-  std::cout << "rand_r()\n"s;
-  rando(rfun::f_rand_r);
 
   std::cout << std::string(60, '-') << '\n';
   std::cout << "std::minstd_rand0\n"s;
