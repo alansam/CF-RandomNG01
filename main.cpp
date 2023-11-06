@@ -141,9 +141,7 @@ void rando(rfun rfn) {
 
   auto rseed { 0u };
 
-  size_t constexpr grbuf_e { 8ul };
-  uint32_t grbuf[grbuf_e] {  1u, };
-  size_t grbuf_ct { 0ul };
+  uint32_t grbuf {  0u, };
 
   //  std::linear_congruential_engine
   std::minstd_rand0 lce0;
@@ -193,10 +191,9 @@ void rando(rfun rfn) {
 #ifndef __APPLE__
       case rfun::f_getrandom:
         {
-          auto rrc = ::getrandom(&grbuf, sizeof(grbuf_e), 0x00);
+          auto rrc = ::getrandom(&grbuf, sizeof(grbuf), 0x00);
           if (rrc > 0) {
-            grbuf_ct %= grbuf_e;
-            auto gr_val = grbuf[grbuf_ct++];
+            auto gr_val = grbuf;
             rv = gr_val % (rmax - rmin) + rmin;
           }
           else if (rrc < 0) {
@@ -211,10 +208,9 @@ void rando(rfun rfn) {
 
       case rfun::f_getentropy:
         {
-          auto rrc = ::getentropy(&grbuf, sizeof(grbuf_e));
+          auto rrc = ::getentropy(&grbuf, sizeof(grbuf));
           if (rrc == 0) {
-            grbuf_ct %= grbuf_e;
-            auto gr_val = grbuf[grbuf_ct++];
+           auto gr_val = grbuf;
             rv = gr_val % (rmax - rmin) + rmin;
           }
           else {
