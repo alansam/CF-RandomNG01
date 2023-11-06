@@ -13,6 +13,7 @@
 #include <utility>
 #include <random>
 #include <cstdlib>
+#include <cstdio>
 #include <unistd.h>
 #include <sys/random.h>
 
@@ -21,6 +22,62 @@
 
 //  MARK: - Definitions
 using namespace std::literals::string_literals;
+
+//  MARK: - Constants
+static
+auto const VERSION = "1.0.0"s;
+static
+auto const VERSION_INFO = "CF.RandomNG01 v"s + VERSION;
+
+//  MARK: Class GetRandom
+namespace urdev {
+class GetRandom {
+public:
+  GetRandom()
+  : rdev_ { nullptr }, rdev_valid_ { false } {
+    rdev_ = ::fopen(URANDOM_DEVICE_PATH, "r");
+    if (rdev_ == nullptr) {
+      std::cout << "unable to open "s
+                << URANDOM_DEVICE_PATH
+                << '\n';
+    }
+    else {
+      rdev_valid_ = true;
+    }
+  }
+
+  ~GetRandom() {
+    if (isValid()) {
+      ::fclose(rdev());
+    }
+  }
+
+  GetRandom(GetRandom const &) = delete;
+  GetRandom(GetRandom &&) = delete;
+  GetRandom & operator=(GetRandom const &) = delete;
+  GetRandom & operator=(GetRandom &&) = delete;
+
+  uint32_t getrandom(void) {
+    uint32_t rbuf { 0u };
+    if (isValid()) {
+      auto frct = ::fread(&rbuf, sizeof(rbuf), 1ul, rdev());
+    }
+    return rbuf;
+  }
+
+  bool isValid() const { return rdev_valid_; }
+  FILE * rdev(void) const { return rdev_; }
+
+static
+  char constexpr * const URANDOM_DEVICE_PATH {
+    "/dev/urandom",
+  };
+
+private:
+  FILE * rdev_;
+  bool rdev_valid_;
+};
+} /* urdev */
 
 //  MARK: Enumreration  rfun
 enum rfun {
@@ -37,6 +94,7 @@ enum rfun {
   a_ibe_mt,
   a_default,
   d_uniform_int,
+  dev_urandom,
 };
 
 void rando(rfun rfn);
@@ -46,7 +104,7 @@ void rando(rfun rfn);
  *  MARK: main()
  */
 int main(int argc, const char * argv[]) {
-  std::cout << "CF.RandomNG01\n"s;
+  std::cout << VERSION_INFO << '\n';
 
   std::cout << std::string(60, '-') << '\n';
   avi::version_details();
@@ -109,19 +167,23 @@ int main(int argc, const char * argv[]) {
 
   std::cout << std::string(60, '-') << '\n';
   std::cout << "std::knuth_b\n"s;
-  rando(a_knuth_b);
+  rando(rfun::a_knuth_b);
 
   std::cout << std::string(60, '-') << '\n';
   std::cout << "std::independent_bits_engine\n"s;
-  rando(a_ibe_mt);
+  rando(rfun::a_ibe_mt);
 
   std::cout << std::string(60, '-') << '\n';
   std::cout << "std::default_random_engine\n"s;
-  rando(a_default);
+  rando(rfun::a_default);
 
   std::cout << std::string(60, '-') << '\n';
   std::cout << "std::uniform_int_distribution\n"s;
-  rando(d_uniform_int);
+  rando(rfun::d_uniform_int);
+
+  std::cout << std::string(60, '-') << '\n';
+  std::cout << urdev::GetRandom::URANDOM_DEVICE_PATH << "\n"s;
+  rando(rfun::dev_urandom);
 
   std::cout << "Complete.\n"s;
 
@@ -143,6 +205,8 @@ void rando(rfun rfn) {
 
   uint32_t grbuf {  0u, };
 
+  urdev::GetRandom urd;
+  
   //  std::linear_congruential_engine
   std::minstd_rand0 lce0;
   std::minstd_rand lce;
@@ -203,7 +267,7 @@ void rando(rfun rfn) {
             rv = rmax;
           }
         }
-        break;;
+        break;
 #endif /* __APPLE__ */
 
       case rfun::f_getentropy:
@@ -217,7 +281,7 @@ void rando(rfun rfn) {
             rv = rmin;
           }
         }
-        break;;
+        break;
 
         //  std::linear_congruential_engine
       case rfun::a_lce0:
@@ -307,6 +371,13 @@ void rando(rfun rfn) {
       case rfun::d_uniform_int:
         {
           rv = uid(mte);
+        }
+        break;
+
+      case rfun::dev_urandom:
+        {
+          auto gr_val = urd.getrandom();
+          rv = gr_val % (rmax - rmin) + rmin;
         }
         break;
 
