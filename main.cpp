@@ -69,9 +69,7 @@ public:
   FILE * rdev(void) const { return rdev_; }
 
 static
-  char constexpr * const URANDOM_DEVICE_PATH {
-    "/dev/urandom",
-  };
+  char constexpr * const URANDOM_DEVICE_PATH = "/dev/urandom";
 
 private:
   FILE * rdev_;
@@ -376,6 +374,7 @@ void rando(rfun rfn) {
 
       case rfun::dev_urandom:
         {
+          [[maybe_unused]] 
           auto gr_val = urd.getrandom();
           rv = gr_val % (rmax - rmin) + rmin;
         }
