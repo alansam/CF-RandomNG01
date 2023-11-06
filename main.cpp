@@ -182,7 +182,7 @@ int main(int argc, const char * argv[]) {
   rando(rfun::d_uniform_int);
 
   std::cout << std::string(60, '-') << '\n';
-  std::cout << urdev::GetRandom::URANDOM_DEVICE_PATH << "\n"s;
+  std::cout << urdev::GetRandom::URANDOM_DEVICE_PATH << '\n';
   rando(rfun::dev_urandom);
 
   std::cout << "Complete.\n"s;
