@@ -60,6 +60,7 @@ public:
   uint32_t getrandom(void) {
     uint32_t rbuf { 0u };
     if (isValid()) {
+      [[maybe_unused]]
       auto frct = ::fread(&rbuf, sizeof(rbuf), 1ul, rdev());
     }
     return rbuf;
@@ -68,8 +69,8 @@ public:
   bool isValid() const { return rdev_valid_; }
   FILE * rdev(void) const { return rdev_; }
 
-static
-  char constexpr * const URANDOM_DEVICE_PATH = "/dev/urandom";
+  static
+  char constexpr URANDOM_DEVICE_PATH[] = "/dev/urandom";
 
 private:
   FILE * rdev_;
